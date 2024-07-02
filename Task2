@@ -1,0 +1,126 @@
+Develop a Python program to manage library resources such as books,
+magazines, and DVDs. The system should support functionalities like
+adding new items to the library, checking out and returning items,
+managing overdue fines, and searching for items by title, author, or
+category
+
+import datetime
+class LibraryItem:
+    def __init__(self, title, author, category):
+        self.title = title
+        self.author = author
+        self.category = category
+        self.checked_out = False
+        self.due_date = None
+
+    def check_out(self, due_date):
+        if not self.checked_out:
+            self.checked_out = True
+            self.due_date = due_date
+            return True
+        else:
+            return False
+
+    def return_item(self):
+        if self.checked_out:
+            self.checked_out = False
+            self.due_date = None
+            return True
+        else:
+            return False
+
+    def is_overdue(self):
+        if self.checked_out and self.due_date < datetime.date.today():
+            return True
+        else:
+            return False
+
+    def calculate_fine(self):
+        if self.is_overdue():
+            overdue_days = (datetime.date.today() - self.due_date).days
+            return overdue_days * 0.50  # Example fine calculation ($0.50 per day)
+        else:
+            return 0
+
+    def __str__(self):
+        return f"{self.title} by {self.author} ({self.category})"
+
+
+class Library:
+    def __init__(self):
+        self.catalog = []
+
+    def add_item(self, item):
+        self.catalog.append(item)
+
+    def search_item(self, keyword, search_by='title'):
+        results = []
+        for item in self.catalog:
+            if search_by == 'title' and keyword.lower() in item.title.lower():
+                results.append(item)
+            elif search_by == 'author' and keyword.lower() in item.author.lower():
+                results.append(item)
+            elif search_by == 'category' and keyword.lower() in item.category.lower():
+                results.append(item)
+        return results
+
+    def check_out_item(self, item_index, due_date):
+        if 0 <= item_index < len(self.catalog):
+            return self.catalog[item_index].check_out(due_date)
+        else:
+            return False
+
+    def return_item(self, item_index):
+        if 0 <= item_index < len(self.catalog):
+            return self.catalog[item_index].return_item()
+        else:
+            return False
+
+    def calculate_total_fines(self):
+        total_fines = 0
+        for item in self.catalog:
+            total_fines += item.calculate_fine()
+        return total_fines
+
+
+# Example usage:
+
+# Create library items
+book1 = LibraryItem("Harry Potter and the Philosopher's Stone", "J.K. Rowling", "Fiction")
+book2 = LibraryItem("1984", "George Orwell", "Fiction")
+magazine1 = LibraryItem("National Geographic", "Various", "Magazine")
+dvd1 = LibraryItem("Inception", "Christopher Nolan", "DVD")
+
+# Create library
+library = Library()
+
+# Add items to the library
+library.add_item(book1)
+library.add_item(book2)
+library.add_item(magazine1)
+library.add_item(dvd1)
+
+# Search for items
+print("Search results for 'Harry Potter':")
+results = library.search_item("Harry Potter", search_by='title')
+for item in results:
+    print(item)
+
+# Check out an item
+print("\nChecking out '1984'...")
+due_date = datetime.date.today() + datetime.timedelta(days=14)  # Due date is 14 days from today
+if library.check_out_item(1, due_date):  # Assuming '1984' is at index 1 in the catalog
+    print("Successfully checked out '1984'")
+else:
+    print("Failed to check out '1984'")
+
+# Return an item
+print("\nReturning '1984'...")
+if library.return_item(1):  # Assuming '1984' is at index 1 in the catalog
+    print("Successfully returned '1984'")
+else:
+    print("Failed to return '1984'")
+
+# Calculate total fines
+total_fines = library.calculate_total_fines()
+print(f"\nTotal fines: ${total_fines:.2f}")
